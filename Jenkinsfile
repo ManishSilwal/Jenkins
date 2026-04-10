@@ -6,17 +6,23 @@ pipeline {
     }
 
     stages {
-        stage{
+
+        stage{('Discord notification')
            steps{
-                  "application_id": null,
-  "avatar": "96cdaa39e306682e76b4208e29a24af0",
-  "channel_id": "1491986896904130743",
-  "guild_id": "1315649216370184222",
-  "id": "1491988177567744151",
-  "name": "Manish Silwal",
-  "type": 1,
-  "token": "I1IO7GeK-avC-XaPkxGkPAOqa7J2cLkbSQDIFeB-Le9EXPK2LgQ-2x-M_heAjbPcvRE3",
-  "url": "https://discord.com/api/webhooks/1491988177567744151/I1IO7GeK-avC-XaPkxGkPAOqa7J2cLkbSQDIFeB-Le9EXPK2LgQ-2x-M_heAjbPcvRE3"
+		echo "Sending Notification...."
+		post {
+    always {
+        withCredentials([string(credentialsId: 'discord-webhook', variable: 'WEBHOOK_URL')]) {
+            sh """
+            curl -X POST -H "Content-Type: application/json" \
+            -d '{"content": "📦 Job: ${JOB_NAME} | Build: #${BUILD_NUMBER} | Status: ${currentBuild.currentResult}"}' \
+            $WEBHOOK_URL
+            """
+        }
+    }
+}
+}
+
                 }
         }
         stage('Checkout') {
